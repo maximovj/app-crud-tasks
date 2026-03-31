@@ -147,4 +147,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Cors authorization
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173'
+]
