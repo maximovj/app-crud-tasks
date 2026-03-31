@@ -1,4 +1,5 @@
-import { createTask, deleteTask } from "@/api/task.api";
+import { createTask, deleteTask, getTask, updateTask } from "@/api/task.api";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -8,12 +9,16 @@ export const TaskFormPage = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm();
 
   const params = useParams();
 
   const onSubmit = handleSubmit(async (data) => {
-    await createTask(data);
+    const x_action = !params.id
+      ? createTask(data)
+      : updateTask(params.id, data);
+    await x_action;
     navigate("/tasks");
   });
 
@@ -24,6 +29,26 @@ export const TaskFormPage = () => {
       navigate("/tasks");
     }
   };
+
+  const btnText = () => (params?.id ? "Actualizar tarea" : "Crear tarea");
+
+  useEffect(() => {
+    setValue("title");
+    setValue("description");
+
+    if (params.id) {
+      const getTaskForById = async () => {
+        const {
+          data: { title, description },
+        } = await getTask(params.id);
+        setValue("title", title);
+        setValue("description", description);
+      };
+      getTaskForById();
+      console.log("Obteniendo datos");
+    }
+  }, [params.id, setValue]);
+
   return (
     <div>
       <form onSubmit={onSubmit}>
@@ -46,7 +71,7 @@ export const TaskFormPage = () => {
         />
         {errors.description && <span>Este campo es requerido</span>}
 
-        <input type="submit" value="Crear tarea" />
+        <input type="submit" value={btnText()} />
       </form>
 
       {params.id && (
